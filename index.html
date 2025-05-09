@@ -13,11 +13,13 @@
         .flag-btn.correct img { border-color: green; box-shadow: 0 0 10px green; transform: scale(1.1); }
         .flag-btn.wrong img { border-color: red; box-shadow: 0 0 10px red; transform: scale(0.9); }
         #next-btn { margin-top: 20px; padding: 10px 20px; font-size: 1.2em; display: none; }
+        #start-btn { margin-top: 50px; padding: 15px 30px; font-size: 1.5em; }
     </style>
 </head>
 <body>
-<h1 id="instruction">Načítám...</h1>
-<div class="flags" id="flags"></div>
+<h1 id="instruction">Vlajková hra</h1>
+<button id="start-btn">Začít hru</button>
+<div class="flags" id="flags" style="display: none;"></div>
 <button id="next-btn">Další</button>
 
 <audio id="correct-sound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_42b7b2f469.mp3"></audio>
@@ -47,6 +49,7 @@
     const instructionEl = document.getElementById('instruction');
     const flagsEl = document.getElementById('flags');
     const nextBtn = document.getElementById('next-btn');
+    const startBtn = document.getElementById('start-btn');
     const correctSound = document.getElementById('correct-sound');
     const wrongSound = document.getElementById('wrong-sound');
 
@@ -92,11 +95,9 @@
         });
     }
 
-    nextBtn.onclick = () => {
-        newRound();
-    };
-
-    window.onload = () => {
+    startBtn.onclick = () => {
+        startBtn.style.display = 'none';
+        flagsEl.style.display = 'flex';
         newRound();
     };
 </script>
