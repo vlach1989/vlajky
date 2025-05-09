@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vlajková hra</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; background: #f0f8ff; padding: 20px; }
+        h1 { font-size: 2em; }
+        .flags { display: flex; justify-content: center; flex-wrap: wrap; gap: 20px; margin-top: 20px; }
+        .flag-btn { border: none; background: none; cursor: pointer; transition: transform 0.2s ease; }
+        .flag-btn img { width: 120px; height: 80px; border: 3px solid transparent; border-radius: 10px; }
+        .flag-btn.correct img { border-color: green; box-shadow: 0 0 10px green; transform: scale(1.1); }
+        .flag-btn.wrong img { border-color: red; box-shadow: 0 0 10px red; transform: scale(0.9); }
+        #next-btn { margin-top: 20px; padding: 10px 20px; font-size: 1.2em; display: none; }
+    </style>
+</head>
+<body>
+<h1 id="instruction">Načítám...</h1>
+<div class="flags" id="flags"></div>
+<button id="next-btn">Další</button>
+
+<script>
+    const countries = [
+        { name: 'Česko', code: 'cz', voice: 'Česko' },
+        { name: 'Slovensko', code: 'sk', voice: 'Slovensko' },
+        { name: 'Kanada', code: 'ca', voice: 'Kanada' },
+        { name: 'USA', code: 'us', voice: 'Spojené státy' },
+        { name: 'Finsko', code: 'fi', voice: 'Finsko' },
+        { name: 'Švédsko', code: 'se', voice: 'Švédsko' },
+        { name: 'Německo', code: 'de', voice: 'Německo' },
+        { name: 'Švýcarsko', code: 'ch', voice: 'Švýcarsko' },
+        { name: 'Norsko', code: 'no', voice: 'Norsko' },
+        { name: 'Dánsko', code: 'dk', voice: 'Dánsko' }
+    ];
+
+    const instructionEl = document.getElementById('instruction');
+    const flagsEl = document.getElementById('flags');
+    const nextBtn = document.getElementById('next-btn');
+
+    let correctCountry = null;
+
+    function speak(text) {
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.lang = 'cs-CZ';
+        speechSynthesis.speak(utter);
+    }
+
+    function shuffle(arr) {
+        return [...arr].sort(() => 0.5 - Math.random());
+    }
+
+    function newRound() {
+        flagsEl.innerHTML = '';
+        nextBtn.style.display = 'none';
+        const choices = shuffle(countries).slice(0, 4);
+        correctCountry = choices[Math.floor(Math.random() * 4)];
+
+        instructionEl.textContent = `${correctCountry.name}`;
+        speak(`${correctCountry.voice}`);
+
+        choices.forEach(country => {
+            const btn = document.createElement('button');
+            btn.className = 'flag-btn';
+            btn.innerHTML = `<img src="https://flagcdn.com/w320/${country.code}.png" alt="${country.name}" />`;
+            btn.onclick = () => {
+                const allBtns = document.querySelectorAll('.flag-btn');
+                allBtns.forEach(b => b.disabled = true);
+                if (country === correctCountry) {
+                    btn.classList.add('correct');
+                    setTimeout(() => newRound(), 1200);
+                } else {
+                    btn.classList.add('wrong');
+                    allBtns.forEach(b => b.disabled = false);
+                }
+            };
+            flagsEl.appendChild(btn);
+        });
+    }
+
+    nextBtn.onclick = () => {
+        newRound();
+    };
+
+    window.onload = () => {
+        newRound();
+    };
+</script>
+</body>
+</html>
