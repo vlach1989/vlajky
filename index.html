@@ -20,23 +20,35 @@
 <div class="flags" id="flags"></div>
 <button id="next-btn">Další</button>
 
+<audio id="correct-sound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_42b7b2f469.mp3"></audio>
+<audio id="wrong-sound" src="https://cdn.pixabay.com/download/audio/2021/08/04/audio_6d5d6a3cf0.mp3"></audio>
+
 <script>
     const countries = [
         { name: 'Česko', code: 'cz', voice: 'Česko' },
         { name: 'Slovensko', code: 'sk', voice: 'Slovensko' },
         { name: 'Kanada', code: 'ca', voice: 'Kanada' },
-        { name: 'USA', code: 'us', voice: 'Spojené státy' },
+        { name: 'USA', code: 'us', voice: 'USA' },
         { name: 'Finsko', code: 'fi', voice: 'Finsko' },
         { name: 'Švédsko', code: 'se', voice: 'Švédsko' },
         { name: 'Německo', code: 'de', voice: 'Německo' },
         { name: 'Švýcarsko', code: 'ch', voice: 'Švýcarsko' },
         { name: 'Norsko', code: 'no', voice: 'Norsko' },
-        { name: 'Dánsko', code: 'dk', voice: 'Dánsko' }
+        { name: 'Dánsko', code: 'dk', voice: 'Dánsko' },
+        { name: 'Rakousko', code: 'at', voice: 'Rakousko' },
+        { name: 'Francie', code: 'fr', voice: 'Francie' },
+        { name: 'Lotyšsko', code: 'lv', voice: 'Lotyšsko' },
+        { name: 'Kazachstán', code: 'kz', voice: 'Kazachstán' },
+        { name: 'Velká Británie', code: 'gb', voice: 'Velká Británie' },
+        { name: 'Slovinsko', code: 'si', voice: 'Slovinsko' },
+        { name: 'Maďarsko', code: 'hu', voice: 'Maďarsko' }
     ];
 
     const instructionEl = document.getElementById('instruction');
     const flagsEl = document.getElementById('flags');
     const nextBtn = document.getElementById('next-btn');
+    const correctSound = document.getElementById('correct-sound');
+    const wrongSound = document.getElementById('wrong-sound');
 
     let correctCountry = null;
 
@@ -68,9 +80,11 @@
                 allBtns.forEach(b => b.disabled = true);
                 if (country === correctCountry) {
                     btn.classList.add('correct');
+                    correctSound.play();
                     setTimeout(() => newRound(), 1200);
                 } else {
                     btn.classList.add('wrong');
+                    wrongSound.play();
                     allBtns.forEach(b => b.disabled = false);
                 }
             };
