@@ -14,6 +14,22 @@
         .flag-btn.wrong img { border-color: red; box-shadow: 0 0 10px red; transform: scale(0.9); }
         #next-btn { margin-top: 20px; padding: 10px 20px; font-size: 1.2em; display: none; }
         #start-btn { margin-top: 50px; padding: 15px 30px; font-size: 1.5em; }
+        #score { font-size: 1.5em; margin-top: 20px; }
+        .flower { font-size: 1.5em; color: green; }
+        .flower-icon { font-size: 1.5em; color: green; margin-left: 5px; }
+        .flower-container { display: flex; align-items: center; }
+        #game-status { font-size: 2em; font-weight: bold; margin-top: 30px; padding: 10px 20px; border-radius: 10px; }
+        #game-status.win { background-color: #4CAF50; color: white; }
+        #game-status.lose { background-color: #F44336; color: white; }
+        .wow-effect {
+            animation: wow-animation 1.5s ease-in-out infinite;
+        }
+        @keyframes wow-animation {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.5; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        #new-game-btn { margin-top: 30px; padding: 15px 30px; font-size: 1.5em; display: none; }
     </style>
 </head>
 <body>
@@ -21,9 +37,17 @@
 <button id="start-btn">Začít hru</button>
 <div class="flags" id="flags" style="display: none;"></div>
 <button id="next-btn">Další</button>
+<div id="score" class="flower-container">
+    Počet kytiček: <span class="flower" id="flower-count">3</span>
+    <span id="flower-icons">🌸🌸🌸</span>
+</div>
+<div id="game-status"></div>
+<button id="new-game-btn">Nová hra</button>
 
 <audio id="correct-sound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_42b7b2f469.mp3"></audio>
 <audio id="wrong-sound" src="https://cdn.pixabay.com/download/audio/2021/08/04/audio_6d5d6a3cf0.mp3"></audio>
+<audio id="win-sound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_8d5d282f37.mp3"></audio>
+<audio id="lose-sound" src="https://cdn.pixabay.com/download/audio/2021/09/09/audio_20ad48c91e.mp3"></audio>
 
 <script>
     const countries = [
@@ -52,8 +76,15 @@
     const startBtn = document.getElementById('start-btn');
     const correctSound = document.getElementById('correct-sound');
     const wrongSound = document.getElementById('wrong-sound');
+    const winSound = document.getElementById('win-sound');
+    const loseSound = document.getElementById('lose-sound');
+    const flowerCountEl = document.getElementById('flower-count');
+    const flowerIconsEl = document.getElementById('flower-icons');
+    const gameStatusEl = document.getElementById('game-status');
+    const newGameBtn = document.getElementById('new-game-btn');
 
     let correctCountry = null;
+    let flowerCount = 3;
 
     function speak(text) {
         const utter = new SpeechSynthesisUtterance(text);
@@ -65,11 +96,22 @@
         return [...arr].sort(() => 0.5 - Math.random());
     }
 
+    function updateFlowers() {
+        flowerCountEl.textContent = flowerCount;
+        flowerIconsEl.innerHTML = '🌸'.repeat(flowerCount);  // Dynamically updates the number of flower icons
+    }
+
+    function showGameStatus(message, statusClass) {
+        gameStatusEl.textContent = message;
+        gameStatusEl.className = statusClass;
+        newGameBtn.style.display = 'inline-block';  // Show "New Game" button
+    }
+
     function newRound() {
         flagsEl.innerHTML = '';
         nextBtn.style.display = 'none';
         const choices = shuffle(countries).slice(0, 4);
-        correctCountry = choices[Math.floor(Math.random() * 4)];
+        correctCountry = choices[Math.floor(Math.random() * choices.length)];
 
         instructionEl.textContent = `${correctCountry.name}`;
         speak(`${correctCountry.voice}`);
@@ -84,20 +126,58 @@
                 if (country === correctCountry) {
                     btn.classList.add('correct');
                     correctSound.play();
-                    setTimeout(() => newRound(), 1200);
+                    flowerCount = Math.min(flowerCount + 1, 10); // Max 10 flowers
+                    updateFlowers();
+                    if (flowerCount === 10) {
+                        showGameStatus('Vyhráli jste!', 'win');
+                        winSound.play();
+                        nextBtn.style.display = 'none';
+                    } else {
+                        setTimeout(() => newRound(), 1200);
+                    }
                 } else {
                     btn.classList.add('wrong');
                     wrongSound.play();
-                    allBtns.forEach(b => b.disabled = false);
+                    flowerCount = Math.max(flowerCount - 1, 0); // Min 0 flowers
+                    updateFlowers();
+                    if (flowerCount === 0) {
+                        showGameStatus('Prohráli jste!', 'lose');
+                        loseSound.play();
+                        nextBtn.style.display = 'none';
+                    } else {
+                        allBtns.forEach(b => b.disabled = false);
+                    }
                 }
             };
             flagsEl.appendChild(btn);
         });
     }
 
+    nextBtn.onclick = () => {
+        newRound();
+    };
+
     startBtn.onclick = () => {
+        flowerCount = 3;
+        updateFlowers();
+        gameStatusEl.textContent = '';
+        gameStatusEl.className = ''; // Clear any status class
+        newGameBtn.style.display = 'none';  // Hide "New Game" button
+        nextBtn.style.display = 'inline-block';
         startBtn.style.display = 'none';
-        flagsEl.style.display = 'flex';
+        flagsEl.style.display = 'block';  // Ensure flags are visible
+        newRound();
+    };
+
+    newGameBtn.onclick = () => {
+        flowerCount = 3;
+        updateFlowers();
+        gameStatusEl.textContent = '';
+        gameStatusEl.className = ''; // Clear any status class
+        newGameBtn.style.display = 'none';  // Hide "New Game" button again
+        nextBtn.style.display = 'inline-block';
+        startBtn.style.display = 'none';
+        flagsEl.style.display = 'block';
         newRound();
     };
 </script>
