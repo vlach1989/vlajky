@@ -17,7 +17,7 @@
         #score { font-size: 1.5em; margin-top: 20px; }
         .flower { font-size: 1.5em; color: green; }
         .flower-icon { font-size: 1.5em; color: green; margin-left: 5px; }
-        .flower-container { display: flex; align-items: center; }
+        .flower-container { display: flex; align-items: center; justify-content: center; gap: 10px; }
         #game-status { font-size: 2em; font-weight: bold; margin-top: 30px; padding: 10px 20px; border-radius: 10px; }
         #game-status.win { background-color: #4CAF50; color: white; }
         #game-status.lose { background-color: #F44336; color: white; }
@@ -38,8 +38,8 @@
 <div class="flags" id="flags" style="display: none;"></div>
 <button id="next-btn">Další</button>
 <div id="score" class="flower-container">
-    Počet kytiček: <span class="flower" id="flower-count">3</span>
-    <span id="flower-icons">🌸🌸🌸</span>
+    Počet kytiček: <span class="flower" id="flower-count">0</span>
+    <span id="flower-icons">🌸</span>
 </div>
 <div id="game-status"></div>
 <button id="new-game-btn">Nová hra</button>
@@ -84,7 +84,7 @@
     const newGameBtn = document.getElementById('new-game-btn');
 
     let correctCountry = null;
-    let flowerCount = 3;
+    let flowerCount = 0;
 
     function speak(text) {
         const utter = new SpeechSynthesisUtterance(text);
@@ -98,13 +98,13 @@
 
     function updateFlowers() {
         flowerCountEl.textContent = flowerCount;
-        flowerIconsEl.innerHTML = '🌸'.repeat(flowerCount);  // Dynamically updates the number of flower icons
+        flowerIconsEl.innerHTML = '🌸'.repeat(flowerCount);
     }
 
     function showGameStatus(message, statusClass) {
         gameStatusEl.textContent = message;
         gameStatusEl.className = statusClass;
-        newGameBtn.style.display = 'inline-block';  // Show "New Game" button
+        newGameBtn.style.display = 'inline-block';
     }
 
     function newRound() {
@@ -126,9 +126,9 @@
                 if (country === correctCountry) {
                     btn.classList.add('correct');
                     correctSound.play();
-                    flowerCount = Math.min(flowerCount + 1, 10); // Max 10 flowers
+                    flowerCount = Math.min(flowerCount + 1, 20);
                     updateFlowers();
-                    if (flowerCount === 10) {
+                    if (flowerCount === 20) {
                         showGameStatus('Vyhráli jste!', 'win');
                         winSound.play();
                         nextBtn.style.display = 'none';
@@ -138,7 +138,7 @@
                 } else {
                     btn.classList.add('wrong');
                     wrongSound.play();
-                    flowerCount = Math.max(flowerCount - 1, 0); // Min 0 flowers
+                    flowerCount = Math.max(flowerCount - 3, 0);
                     updateFlowers();
                     if (flowerCount === 0) {
                         showGameStatus('Prohráli jste!', 'lose');
@@ -158,23 +158,23 @@
     };
 
     startBtn.onclick = () => {
-        flowerCount = 3;
+        flowerCount = 0;
         updateFlowers();
         gameStatusEl.textContent = '';
-        gameStatusEl.className = ''; // Clear any status class
-        newGameBtn.style.display = 'none';  // Hide "New Game" button
+        gameStatusEl.className = '';
+        newGameBtn.style.display = 'none';
         nextBtn.style.display = 'inline-block';
         startBtn.style.display = 'none';
-        flagsEl.style.display = 'block';  // Ensure flags are visible
+        flagsEl.style.display = 'block';
         newRound();
     };
 
     newGameBtn.onclick = () => {
-        flowerCount = 3;
+        flowerCount = 0;
         updateFlowers();
         gameStatusEl.textContent = '';
-        gameStatusEl.className = ''; // Clear any status class
-        newGameBtn.style.display = 'none';  // Hide "New Game" button again
+        gameStatusEl.className = '';
+        newGameBtn.style.display = 'none';
         nextBtn.style.display = 'inline-block';
         startBtn.style.display = 'none';
         flagsEl.style.display = 'block';
